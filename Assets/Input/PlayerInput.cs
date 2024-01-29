@@ -53,6 +53,33 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Fish"",
+                    ""type"": ""Button"",
+                    ""id"": ""2b002bf2-b49f-406c-b392-d1047735d7a5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Reel"",
+                    ""type"": ""Button"",
+                    ""id"": ""d8c1c329-bf7d-429e-9262-84296d37c690"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""3bd42f81-c734-49bc-979b-8126f353f8eb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -132,6 +159,39 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""CameraY"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2703a63a-285a-40f7-ba34-ec6682f2d698"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fish"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fa320561-b9d2-43f6-b6c2-207f42b09d56"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a99c0e90-1e72-4023-8d1d-6e8daeb92492"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -149,6 +209,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Movement_WASD = m_Movement.FindAction("WASD", throwIfNotFound: true);
         m_Movement_CameraX = m_Movement.FindAction("CameraX", throwIfNotFound: true);
         m_Movement_CameraY = m_Movement.FindAction("CameraY", throwIfNotFound: true);
+        m_Movement_Fish = m_Movement.FindAction("Fish", throwIfNotFound: true);
+        m_Movement_Reel = m_Movement.FindAction("Reel", throwIfNotFound: true);
+        m_Movement_Interact = m_Movement.FindAction("Interact", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -213,6 +276,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Movement_WASD;
     private readonly InputAction m_Movement_CameraX;
     private readonly InputAction m_Movement_CameraY;
+    private readonly InputAction m_Movement_Fish;
+    private readonly InputAction m_Movement_Reel;
+    private readonly InputAction m_Movement_Interact;
     public struct MovementActions
     {
         private @PlayerInput m_Wrapper;
@@ -220,6 +286,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @WASD => m_Wrapper.m_Movement_WASD;
         public InputAction @CameraX => m_Wrapper.m_Movement_CameraX;
         public InputAction @CameraY => m_Wrapper.m_Movement_CameraY;
+        public InputAction @Fish => m_Wrapper.m_Movement_Fish;
+        public InputAction @Reel => m_Wrapper.m_Movement_Reel;
+        public InputAction @Interact => m_Wrapper.m_Movement_Interact;
         public InputActionMap Get() { return m_Wrapper.m_Movement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -238,6 +307,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @CameraY.started += instance.OnCameraY;
             @CameraY.performed += instance.OnCameraY;
             @CameraY.canceled += instance.OnCameraY;
+            @Fish.started += instance.OnFish;
+            @Fish.performed += instance.OnFish;
+            @Fish.canceled += instance.OnFish;
+            @Reel.started += instance.OnReel;
+            @Reel.performed += instance.OnReel;
+            @Reel.canceled += instance.OnReel;
+            @Interact.started += instance.OnInteract;
+            @Interact.performed += instance.OnInteract;
+            @Interact.canceled += instance.OnInteract;
         }
 
         private void UnregisterCallbacks(IMovementActions instance)
@@ -251,6 +329,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @CameraY.started -= instance.OnCameraY;
             @CameraY.performed -= instance.OnCameraY;
             @CameraY.canceled -= instance.OnCameraY;
+            @Fish.started -= instance.OnFish;
+            @Fish.performed -= instance.OnFish;
+            @Fish.canceled -= instance.OnFish;
+            @Reel.started -= instance.OnReel;
+            @Reel.performed -= instance.OnReel;
+            @Reel.canceled -= instance.OnReel;
+            @Interact.started -= instance.OnInteract;
+            @Interact.performed -= instance.OnInteract;
+            @Interact.canceled -= instance.OnInteract;
         }
 
         public void RemoveCallbacks(IMovementActions instance)
@@ -282,5 +369,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnWASD(InputAction.CallbackContext context);
         void OnCameraX(InputAction.CallbackContext context);
         void OnCameraY(InputAction.CallbackContext context);
+        void OnFish(InputAction.CallbackContext context);
+        void OnReel(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
     }
 }
