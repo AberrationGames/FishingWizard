@@ -15,10 +15,19 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Camera",
+                    "name": "CameraX",
                     "type": "Value",
                     "id": "b1e6e408-358b-4f90-b0d2-27051c812872",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "CameraY",
+                    "type": "Value",
+                    "id": "e6d47d5a-163a-4033-a82f-8cca95694aa3",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -82,12 +91,23 @@
                 },
                 {
                     "name": "",
-                    "id": "4be001dc-a12e-49c8-a53e-b961cb759e52",
-                    "path": "<Mouse>/delta",
+                    "id": "8fc62e38-4215-47fb-9c79-964b2478be0b",
+                    "path": "<Mouse>/delta/x",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "CameraX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b8d7b0cd-055e-41b0-8da6-8e68c4ae6962",
+                    "path": "<Mouse>/delta/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraY",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

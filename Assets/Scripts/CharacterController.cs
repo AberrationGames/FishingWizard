@@ -26,6 +26,7 @@ namespace FishingWizard
             m_playerCamera = Camera.main;
             m_rigidbody = GetComponent<Rigidbody>();
             SetupInput();
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         void Update()
@@ -36,25 +37,22 @@ namespace FishingWizard
 
         private void HandleMovementInput()
         {
-            Vector3 forceDirection = new Vector3(m_characterMoveSpeed * m_movementInput.x, 0, m_movementInput.y * m_characterMoveSpeed);
-            m_rigidbody.velocity += forceDirection * Time.deltaTime;
+
+            Vector3 forwardForce = transform.forward;
+            Vector3 horizontalForce = transform.right;
+            horizontalForce *= m_movementInput.x * m_characterMoveSpeed;
+            forwardForce *= m_movementInput.y * m_characterMoveSpeed;
+            m_rigidbody.velocity += (horizontalForce + forwardForce) * Time.deltaTime;
         }
 
         void HandleCameraInput()
         {
-            if (m_cameraTurnInput.x != 0)
-            {
-                Vector3 rotationAmount = new Vector3(0, m_cameraTurnInput.x * m_lookSpeedX * Time.deltaTime, 0);
-                transform.Rotate(Vector3.up, rotationAmount.y);
-            }
-
-            if (m_cameraTurnInput.y != 0)
-            {
-                Vector3 eularAmount = m_playerCamera.transform.rotation.eulerAngles;
-                eularAmount.x += -m_cameraTurnInput.y * m_lookSpeedY * Time.deltaTime;
-                eularAmount.x = HelperFunctions.ClampAngle(eularAmount.x, m_minXCameraAngle, m_maxXCameraAngle);
-                m_playerCamera.transform.localRotation = Quaternion.Euler(eularAmount);
-            }
+            float rotationAmount = m_cameraTurnInput.x * m_lookSpeedX * Time.deltaTime;
+            float xValue = -m_cameraTurnInput.y * m_lookSpeedY * Time.deltaTime;
+            
+            xValue = HelperFunctions.ClampAngle(xValue, m_minXCameraAngle, m_maxXCameraAngle);
+            m_playerCamera.transform.rotation *= Quaternion.Euler(xValue, 0, -m_playerCamera.transform.rotation.eulerAngles.z);
+            transform.rotation *= Quaternion.Euler(0, rotationAmount,0);
         }
 
         private void SetupInput()
@@ -65,9 +63,14 @@ namespace FishingWizard
             m_input.Movement.WASD.started += WASDMovementStarted;
             m_input.Movement.WASD.performed += WASDMovementStarted;
             m_input.Movement.WASD.canceled += WASDMovementEnded;
-            m_input.Movement.Camera.started += CameraMovementStarted;
-            m_input.Movement.Camera.performed += CameraMovementStarted;
-            m_input.Movement.Camera.canceled += CameraMovementEnded;
+            
+            m_input.Movement.CameraX.started += CameraMovementXStarted;
+            m_input.Movement.CameraX.performed += CameraMovementXStarted;
+            m_input.Movement.CameraX.canceled += CameraMovementXEnded;
+            
+            m_input.Movement.CameraY.started += CameraMovementYStarted;
+            m_input.Movement.CameraY.performed += CameraMovementYStarted;
+            m_input.Movement.CameraY.canceled += CameraMovementYEnded;
         }
 
         private void WASDMovementStarted(InputAction.CallbackContext a_context)
@@ -78,15 +81,21 @@ namespace FishingWizard
         {
             m_movementInput = Vector2.zero;
         }
-        private void CameraMovementStarted(InputAction.CallbackContext a_context)
+        private void CameraMovementXStarted(InputAction.CallbackContext a_context)
         {
-            Debug.Log("Input Happened" + a_context.ReadValue<Vector2>());
-            m_cameraTurnInput = a_context.ReadValue<Vector2>();
+            m_cameraTurnInput.x = a_context.ReadValue<float>();
         }
-        private void CameraMovementEnded(InputAction.CallbackContext a_context)
+        private void CameraMovementXEnded(InputAction.CallbackContext a_context)
         {
-            Debug.Log("Input Happened" + a_context.ReadValue<Vector2>());
-            m_cameraTurnInput = Vector2.zero;
+            m_cameraTurnInput.x = 0;
+        }
+        private void CameraMovementYStarted(InputAction.CallbackContext a_context)
+        {
+            m_cameraTurnInput.y = a_context.ReadValue<float>();
+        }
+        private void CameraMovementYEnded(InputAction.CallbackContext a_context)
+        {
+            m_cameraTurnInput.y = 0;
         }
     }
 }
