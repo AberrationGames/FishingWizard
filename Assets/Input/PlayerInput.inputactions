@@ -1,0 +1,104 @@
+{
+    "name": "PlayerInput",
+    "maps": [
+        {
+            "name": "Movement",
+            "id": "9e83845f-3cc9-42e6-9347-2aafd3fd52a3",
+            "actions": [
+                {
+                    "name": "WASD",
+                    "type": "Value",
+                    "id": "4270db0d-9a3d-491b-a9ac-17b2387b65f9",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Camera",
+                    "type": "Value",
+                    "id": "b1e6e408-358b-4f90-b0d2-27051c812872",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "Value",
+                    "id": "d57786c8-a88b-4b3f-818f-006704f9227d",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "WASD",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "bb976c43-e915-45b9-8e71-5a751d342ade",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "WASD",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "65717b20-205e-409b-9ec7-8d627e31593d",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "WASD",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "dd542904-81ba-4206-abcc-3e1b7e284444",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "WASD",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "0ec884a2-64d3-43f8-9681-af1063a2ec58",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Player",
+                    "action": "WASD",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "4be001dc-a12e-49c8-a53e-b961cb759e52",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Player",
+            "bindingGroup": "Player",
+            "devices": []
+        }
+    ]
+}
