@@ -16,7 +16,7 @@ public class FishingRod : MonoBehaviour
 
     void Update()
     {
-        if (m_rodTipObject == null && m_targetObject == null)
+        if (m_rodTipObject == null || m_targetObject == null)
         {
             m_lineRenderer.enabled = false;   
             return;

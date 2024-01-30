@@ -11,8 +11,19 @@ namespace FishingWizard
         [SerializeField] private float m_minXCameraAngle = 20f;
         [SerializeField] private float m_maxXCameraAngle = 20f;
         [SerializeField] private float m_castLaunchVelocity = 20f;
+        [Header("% of velocity lost per update when no input is found")]
+        [SerializeField] private float m_slowDownPercent = 2;
+        //slow down calculated but just makes it easier to see the % as a raw int value.
+        private float m_slowDownPercentCalculated = 0;
+        
         [SerializeField] private GameObject m_lurePrefab;
         private GameObject m_currentLureObject;
+
+        private float m_inputEnterDelay = 0.7f;
+        private float m_inputDelayTimer = 0.0f;
+        
+        //Container for each players lure. will add naming eg player1lure and etc so tracking is much easier.
+        private GameObject m_lureContainer;
 
         private Vector2 m_cameraTurnInput;
         private Vector2 m_movementInput;
@@ -30,32 +41,50 @@ namespace FishingWizard
             m_rigidbody = GetComponent<Rigidbody>();
             m_fishingRod = GetComponentInChildren<FishingRod>();
             SetupInput();
-            Cursor.lockState = CursorLockMode.Locked;
+            m_lureContainer = GameObject.Find("LureContainer");
+            
+            m_slowDownPercentCalculated = (1 - (m_slowDownPercent / 100));
         }
 
         void Update()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            m_inputDelayTimer += Time.deltaTime;
+
+            if (m_inputDelayTimer < m_inputEnterDelay) 
+                return;
+            
             HandleMovementInput();
             HandleCameraInput();
         }
 
         private void HandleMovementInput()
         {
-
-            Vector3 forwardForce = transform.forward;
-            Vector3 horizontalForce = transform.right;
-            horizontalForce *= m_movementInput.x * m_characterMoveSpeed;
-            forwardForce *= m_movementInput.y * m_characterMoveSpeed;
-            m_rigidbody.velocity += (horizontalForce + forwardForce) * Time.deltaTime;
+            if (m_movementInput != Vector2.zero)
+            {
+                Vector3 forwardForce = transform.forward;
+                Vector3 horizontalForce = transform.right;
+                horizontalForce *= m_movementInput.x * m_characterMoveSpeed;
+                forwardForce *= m_movementInput.y * m_characterMoveSpeed;
+                m_rigidbody.velocity += (horizontalForce + forwardForce) * Time.deltaTime;
+            }
+            else
+            {
+                Vector3 velocity = m_rigidbody.velocity;
+                velocity.y = 0;
+                velocity *= m_slowDownPercentCalculated;
+            }
         }
 
         void HandleCameraInput()
         {
-            float rotationAmount = m_cameraTurnInput.x * m_lookSpeedX * Time.deltaTime;
-            float xValue = -m_cameraTurnInput.y * m_lookSpeedY * Time.deltaTime;
-            
-            xValue = HelperFunctions.ClampAngle(xValue, m_minXCameraAngle, m_maxXCameraAngle);
-            m_playerCamera.transform.rotation *= Quaternion.Euler(xValue, 0, -m_playerCamera.transform.rotation.eulerAngles.z);
+            float rotationAmount = m_cameraTurnInput.x * m_lookSpeedX;
+            float xValue = -m_cameraTurnInput.y * m_lookSpeedY;
+
+            Vector3 eularRotation = m_playerCamera.transform.rotation.eulerAngles;
+            eularRotation.x += xValue;
+            eularRotation.x = HelperFunctions.ClampAngle(eularRotation.x, m_minXCameraAngle, m_maxXCameraAngle);
+            m_playerCamera.transform.rotation = Quaternion.Euler(eularRotation);
             transform.rotation *= Quaternion.Euler(0, rotationAmount,0);
         }
 
@@ -117,8 +146,8 @@ namespace FishingWizard
                 Destroy(m_currentLureObject);
             }
             GameObject lureObject = Instantiate(m_lurePrefab, m_fishingRod.m_rodTipObject.transform.position + m_fishingRod.m_rodTipObject.transform.forward * 3, Quaternion.identity);
-            lureObject.transform.parent = m_fishingRod.m_rodTipObject.transform;
-            lureObject.GetComponent<Rigidbody>().velocity = m_fishingRod.m_rodTipObject.forward * m_castLaunchVelocity;
+            lureObject.transform.parent = m_lureContainer.transform.transform;
+            lureObject.GetComponent<Rigidbody>().velocity = m_playerCamera.transform.forward * m_castLaunchVelocity;
             m_fishingRod.m_targetObject = lureObject.transform;
             m_currentLureObject = lureObject;
         }
