@@ -1,9 +1,10 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace FishingWizard
 {
-    public class CharacterController : MonoBehaviour
+    public class FishermanController : NetworkBehaviour
     {
         [SerializeField] private float m_characterMoveSpeed = 20f;
         [SerializeField] private float m_lookSpeedX = 20f;
@@ -40,14 +41,28 @@ namespace FishingWizard
             m_playerCamera = Camera.main;
             m_rigidbody = GetComponent<Rigidbody>();
             m_fishingRod = GetComponentInChildren<FishingRod>();
-            SetupInput();
             m_lureContainer = GameObject.Find("LureContainer");
-            
             m_slowDownPercentCalculated = (1 - (m_slowDownPercent / 100));
+
+            //set to be renderable if the character is not the current players.
+            if (!IsOwner)
+            {
+                gameObject.layer = 8;
+            }
+            else
+            {
+                gameObject.layer = 7;
+            }
+            SetupInput();
         }
 
         void Update()
         {
+            if (!IsOwner)
+            {
+                //Sync location but no logic should be done
+                return;
+            }
             Cursor.lockState = CursorLockMode.Locked;
             m_inputDelayTimer += Time.deltaTime;
 
