@@ -35,6 +35,36 @@ namespace FishingWizard
         private Camera m_playerCamera;
         private Rigidbody m_rigidbody;
         private FishingRod m_fishingRod;
+
+        private struct InputSyncStruct : INetworkSerializable
+        {
+            public Vector2 m_movementInput;
+            public Vector2 m_mouseInput;
+            public bool m_leftMouseDown;
+            public bool m_rightMouseDown;
+
+            public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+            {
+                serializer.SerializeValue(ref m_movementInput);
+                serializer.SerializeValue(ref m_mouseInput);
+                serializer.SerializeValue(ref m_leftMouseDown);
+                serializer.SerializeValue(ref m_rightMouseDown);
+            }
+        }
+
+        private NetworkVariable<InputSyncStruct> m_inputSyncVariable = new NetworkVariable<InputSyncStruct>();
+
+        public override void OnNetworkSpawn()
+        {
+            if (IsHost)
+            {
+                m_inputSyncVariable.OnValueChanged += (InputSyncStruct previousValue, InputSyncStruct newvalue) =>
+                {
+                    //does this only update on ownerclientid? codemonkey references that so not sure.
+                    //The value gets updated and will now need to
+                };
+            }
+        }
         
         void Start()
         {
@@ -44,15 +74,17 @@ namespace FishingWizard
             m_lureContainer = GameObject.Find("LureContainer");
             m_slowDownPercentCalculated = (1 - (m_slowDownPercent / 100));
 
-            //set to be renderable if the character is not the current players.
             if (!IsOwner)
             {
+                //8 = do render 
                 gameObject.layer = 8;
+                //Disable the cameras on the other characters so no overriding occurs.
+                GetComponentInChildren<Camera>().gameObject.SetActive(false);
+                return;
             }
-            else
-            {
-                gameObject.layer = 7;
-            }
+            
+            //Otherwise we dont want to see the model 
+            gameObject.layer = 7;
             SetupInput();
         }
 
@@ -63,7 +95,6 @@ namespace FishingWizard
                 //Sync location but no logic should be done
                 return;
             }
-            Cursor.lockState = CursorLockMode.Locked;
             m_inputDelayTimer += Time.deltaTime;
 
             if (m_inputDelayTimer < m_inputEnterDelay) 
@@ -71,6 +102,11 @@ namespace FishingWizard
             
             HandleMovementInput();
             HandleCameraInput();
+        }
+
+        private void SyncInputWithServer()
+        {
+            //Send m_movementInput, m_cameraTurnInput for syncing. add more inputs later
         }
 
         private void HandleMovementInput()
@@ -88,6 +124,8 @@ namespace FishingWizard
                 Vector3 velocity = m_rigidbody.velocity;
                 velocity.y = 0;
                 velocity *= m_slowDownPercentCalculated;
+                velocity.y = m_rigidbody.velocity.y;
+                m_rigidbody.velocity = velocity;
             }
         }
 
