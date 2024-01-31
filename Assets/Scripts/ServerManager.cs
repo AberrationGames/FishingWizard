@@ -1,10 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using FishingWizard;
 using Unity.Netcode;
+using Netcode.Transports.Facepunch;
+using Steamworks;
+using Steamworks.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
-
 
 /// <summary>
 /// This class will manage the multiple players and everything else. the plan will be for this object to sync everything
@@ -18,7 +19,7 @@ public class ServerManager : NetworkBehaviour
 
     private void Awake()
     {
-        m_characters = new FishermanController[MAX_CHARACTERS];
+        
     }
 
     // Start is called before the first frame update
