@@ -14,15 +14,15 @@ public class NetworkDebugUi : MonoBehaviour
     {
         m_hostStartButton.onClick.AddListener(() =>
         {
-            NetworkManager.Singleton.StartHost();
+            GameNetworkManager.Instance.StartHost(4);
         });
         m_serverStartButton.onClick.AddListener(() =>
         {
-            NetworkManager.Singleton.StartServer();
+            
         });
         m_clientStartButton.onClick.AddListener(() =>
         {
-            NetworkManager.Singleton.StartClient();
+            
         });
     }
 }
