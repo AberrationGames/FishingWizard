@@ -15,13 +15,13 @@ namespace FishingWizard
         [Header("% of velocity lost per update when no input is found")]
         [SerializeField] private float m_slowDownPercent = 2;
         //slow down calculated but just makes it easier to see the % as a raw int value.
-        private float m_slowDownPercentCalculated = 0;
+        private float m_slowDownPercentCalculated;
         
         [SerializeField] private GameObject m_lurePrefab;
         private GameObject m_currentLureObject;
 
-        private float m_inputEnterDelay = 0.7f;
-        private float m_inputDelayTimer = 0.0f;
+        private const float InputEnterDelay = 0.7f;
+        private float m_inputDelayTimer;
         
         //Container for each players lure. will add naming eg player1lure and etc so tracking is much easier.
         private GameObject m_lureContainer;
@@ -36,25 +36,7 @@ namespace FishingWizard
         private Rigidbody m_rigidbody;
         private FishingRod m_fishingRod;
 
-        private bool m_isNetworkSpawned = false;
-
-        private struct InputSyncStruct : INetworkSerializable
-        {
-            public Vector2 m_movementInput;
-            public Vector2 m_mouseInput;
-            public bool m_leftMouseDown;
-            public bool m_rightMouseDown;
-
-            public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-            {
-                serializer.SerializeValue(ref m_movementInput);
-                serializer.SerializeValue(ref m_mouseInput);
-                serializer.SerializeValue(ref m_leftMouseDown);
-                serializer.SerializeValue(ref m_rightMouseDown);
-            }
-        }
-
-        private NetworkVariable<InputSyncStruct> m_inputSyncVariable = new NetworkVariable<InputSyncStruct>();
+        private bool m_isNetworkSpawned;
 
         public override void OnNetworkSpawn()
         {
@@ -64,7 +46,7 @@ namespace FishingWizard
             }
         }
         
-        void Start()
+        private void Start()
         {
             m_playerCamera = GetComponentInChildren<Camera>();
             m_rigidbody = GetComponent<Rigidbody>();
@@ -93,19 +75,17 @@ namespace FishingWizard
             SetupInput();
         }
 
-        void Update()
+        private void Update()
         {
             m_inputDelayTimer += Time.deltaTime;
-            if (m_inputDelayTimer < m_inputEnterDelay) 
+            if (!IsHost || m_inputDelayTimer < InputEnterDelay) 
                 return;
+
+            if (m_playerCamera != null && m_isNetworkSpawned)
+                SendTransformDataClientRpc(transform.position, m_playerCamera.transform.rotation.eulerAngles);
             
-            if (IsHost)
-            {
-                if (m_playerCamera != null && m_isNetworkSpawned)
-                    SendTransformDataClientRpc(transform.position, m_playerCamera.transform.rotation.eulerAngles);
-                HandleMovementInput();
-                HandleCameraInput();
-            }
+            HandleMovementInput();
+            HandleCameraInput();
         }
 
         private void HandleMovementInput()
@@ -133,21 +113,75 @@ namespace FishingWizard
             float rotationAmount = m_cameraMovementInput.x * m_lookSpeedX;
             float xValue = -m_cameraMovementInput.y * m_lookSpeedY;
 
-            Vector3 eularRotation = m_playerCamera.transform.rotation.eulerAngles;
-            eularRotation.x += xValue;
-            eularRotation.x = HelperFunctions.ClampAngle(eularRotation.x, m_minXCameraAngle, m_maxXCameraAngle);
-            m_playerCamera.transform.rotation = Quaternion.Euler(eularRotation);
+            Vector3 rotation = m_playerCamera.transform.rotation.eulerAngles;
+            rotation.x += xValue;
+            rotation.x = HelperFunctions.ClampAngle(rotation.x, m_minXCameraAngle, m_maxXCameraAngle);
+            m_playerCamera.transform.rotation = Quaternion.Euler(rotation);
             transform.rotation *= Quaternion.Euler(0, rotationAmount,0);
         }
+        
+        private void CastLureFromRod()
+        {
+            if (m_currentLureObject != null)
+            {
+                Destroy(m_currentLureObject);
+            }
+
+            GameObject lureObject = Instantiate(m_lurePrefab, m_fishingRod.m_rodTipObject.transform.position + m_fishingRod.m_rodTipObject.transform.forward * 3, Quaternion.identity);
+            lureObject.transform.parent = m_lureContainer.transform.transform;
+            lureObject.GetComponent<Rigidbody>().velocity = m_playerCamera.transform.forward * m_castLaunchVelocity;
+            m_fishingRod.m_targetObject = lureObject.transform;
+            m_currentLureObject = lureObject;
+        }
+        private void StartReelingLure()
+        {
+            //throw new System.NotImplementedException();
+        }
+        private void ReelLure()
+        {
+        }
+        private void StopReelingLure()
+        {
+        }
+
+        #region RPCFunctions 
+
+        [ServerRpc]
+        private void SyncInputServerRpc(Vector2 a_movementInput, Vector2 a_cameraMovementInput)
+        {
+            m_movementInput = a_movementInput;
+            m_cameraMovementInput = a_cameraMovementInput;
+        }
+        [ServerRpc]
+        private void SyncMouseInputServerRpc(bool a_leftClickPressed, bool a_rightClickPressed)
+        {
+            if (a_leftClickPressed)
+                CastLureFromRod();
+            else if (a_rightClickPressed)
+            {
+                StartReelingLure();
+            }
+        }
+        [ClientRpc]
+        private void SendTransformDataClientRpc(Vector3 a_position, Vector3 a_rotation)
+        {
+            transform.position = a_position;
+            if (m_playerCamera != null)
+                m_playerCamera.transform.rotation = Quaternion.Euler(a_rotation);
+        }
+
+        #endregion
+
+        #region InputFunctions 
 
         private void SetupInput()
         {
             m_input = new PlayerInput();
             m_input.Enable();
             m_input.Movement.Enable();
-            m_input.Movement.WASD.started += WASDMovementStarted;
-            m_input.Movement.WASD.performed += WASDMovementStarted;
-            m_input.Movement.WASD.canceled += WASDMovementEnded;
+            m_input.Movement.WASD.started += WasdMovementStarted;
+            m_input.Movement.WASD.performed += WasdMovementStarted;
+            m_input.Movement.WASD.canceled += WasdMovementEnded;
             
             m_input.Movement.CameraX.started += CameraMovementXStarted;
             m_input.Movement.CameraX.performed += CameraMovementXStarted;
@@ -165,29 +199,13 @@ namespace FishingWizard
             m_input.Movement.Reel.performed += ReelInputPerformed;
             m_input.Movement.Reel.canceled += ReelInputEnded;
         }
-
-        [ServerRpc]
-        private void SyncInputServerRpc(Vector2 a_movementInput, Vector2 a_cameraMovementInput)
-        {
-            m_movementInput = a_movementInput;
-            m_cameraMovementInput = a_cameraMovementInput;
-        }
-
-        [ClientRpc]
-        private void SendTransformDataClientRpc(Vector3 a_position, Vector3 a_eularRotation)
-        {
-            transform.position = a_position;
-            if (m_playerCamera != null)
-                m_playerCamera.transform.rotation = Quaternion.Euler(a_eularRotation);
-        }
-        
-        private void WASDMovementStarted(InputAction.CallbackContext a_context)
+        private void WasdMovementStarted(InputAction.CallbackContext a_context)
         {
             m_movementInput = a_context.ReadValue<Vector2>();
             if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
-        private void WASDMovementEnded(InputAction.CallbackContext a_context)
+        private void WasdMovementEnded(InputAction.CallbackContext a_context)
         {
             m_movementInput = Vector2.zero;
             if (!IsHost || !IsServer)
@@ -220,35 +238,36 @@ namespace FishingWizard
 
         private void CastLureStarted(InputAction.CallbackContext a_context)
         {
-            if (m_currentLureObject != null)
+            if (!IsHost)
             {
-                Destroy(m_currentLureObject);
+                SyncMouseInputServerRpc(true, false);
+                return;   
             }
-            GameObject lureObject = Instantiate(m_lurePrefab, m_fishingRod.m_rodTipObject.transform.position + m_fishingRod.m_rodTipObject.transform.forward * 3, Quaternion.identity);
-            lureObject.transform.parent = m_lureContainer.transform.transform;
-            lureObject.GetComponent<Rigidbody>().velocity = m_playerCamera.transform.forward * m_castLaunchVelocity;
-            m_fishingRod.m_targetObject = lureObject.transform;
-            m_currentLureObject = lureObject;
+            CastLureFromRod();
         }
 
         private void ReelInputStarted(InputAction.CallbackContext a_context)
         {
-            
+            if (!IsHost)
+            {
+                SyncMouseInputServerRpc(false, true);
+                return;   
+            }
+            StartReelingLure();
         }
-
         private void ReelInputPerformed(InputAction.CallbackContext a_context)
         {
-            
+            ReelLure();
         }
-
         private void ReelInputEnded(InputAction.CallbackContext a_context)
         {
-            
+            StopReelingLure();
         }
-
         private void InteractInputStarted(InputAction.CallbackContext a_context)
         {
             
         }
+
+        #endregion
     }
 }

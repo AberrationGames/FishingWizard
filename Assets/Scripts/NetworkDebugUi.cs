@@ -14,7 +14,7 @@ public class NetworkDebugUi : MonoBehaviour
     {
         m_hostStartButton.onClick.AddListener(() =>
         {
-            GameNetworkManager.Instance.StartHost(4);
+            GameNetworkManager.Instance.StartHost(8);
         });
         m_serverStartButton.onClick.AddListener(() =>
         {
