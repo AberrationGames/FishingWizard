@@ -9,14 +9,14 @@ using UnityEngine;
 
 public class GameNetworkManager : MonoBehaviour
 {
-	private string m_playerName = "";
-	private SteamId m_playerSteamID = 0;
-	private string m_playerSteamIDString = "";
-	private bool m_connectedToSteam = false;
-	public static GameNetworkManager Instance { get; private set; } = null;
+	//private string m_playerName = "";
+	//private SteamId m_playerSteamID = 0;
+	//private string m_playerSteamIDString = "";
+	//private bool m_connectedToSteam = false;
+	public static GameNetworkManager Instance { get; private set; }
 
-	private FacepunchTransport transport;
-	public Lobby? CurrentLobby { get; private set; } = null;
+	private FacepunchTransport m_transport;
+	public Lobby? CurrentLobby { get; private set; }
 
 	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 100);
 
@@ -44,7 +44,7 @@ public class GameNetworkManager : MonoBehaviour
 		Debug.unityLogger.logEnabled = Debug.isDebugBuild;
 #endif
 
-		transport = NetworkManager.Singleton.GetComponent<FacepunchTransport>();
+		m_transport = NetworkManager.Singleton.GetComponent<FacepunchTransport>();
 
         SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
         SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
@@ -73,7 +73,7 @@ public class GameNetworkManager : MonoBehaviour
 
 	private void OnApplicationQuit() => Disconnect();
 
-	public async void StartHost(uint maxMembers)
+	public async void StartHost(uint a_maxMembers)
 	{
 		NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
 		NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
@@ -81,17 +81,17 @@ public class GameNetworkManager : MonoBehaviour
 
 		NetworkManager.Singleton.StartHost();
 
-		CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)maxMembers);
+		CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)a_maxMembers);
     }
 
-	public void StartClient(SteamId id)
+	public void StartClient(SteamId a_id)
 	{
 		NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
 		NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
 
-		transport.targetSteamId = id;
+		m_transport.targetSteamId = a_id;
 
-		Debug.Log($"Joining room hosted by {transport.targetSteamId}", this);
+		Debug.Log($"Joining room hosted by {m_transport.targetSteamId}", this);
 
 		if (NetworkManager.Singleton.StartClient())
 			Debug.Log("Client has joined!", this);
@@ -107,7 +107,7 @@ public class GameNetworkManager : MonoBehaviour
 		NetworkManager.Singleton.Shutdown();
 	}
 
-	public async Task<bool> RefreshLobbies(int maxResults = 20)
+	public async Task<bool> RefreshLobbies(int a_maxResults = 20)
 	{
 		try
 		{
@@ -115,7 +115,7 @@ public class GameNetworkManager : MonoBehaviour
 
 		var lobbies = await SteamMatchmaking.LobbyList
                 .FilterDistanceClose()
-		.WithMaxResults(maxResults)
+		.WithMaxResults(a_maxResults)
 		.RequestAsync();
 
 		if (lobbies != null)
@@ -126,7 +126,7 @@ public class GameNetworkManager : MonoBehaviour
 
 		return true;
 		}
-		catch (System.Exception ex)
+		catch (Exception ex)
 		{
 			Debug.Log("Error fetching lobbies", this);
 			Debug.LogException(ex, this);
@@ -139,50 +139,50 @@ public class GameNetworkManager : MonoBehaviour
 		var request = new Steamworks.ServerList.Internet();
 		//request.AddFilter("secure", "1");
 		//request.AddFilter("and", "1");
-		//request.AddFilter("gametype", "1");
+		//request.AddFilter("game type", "1");
 		return request;
 	}
 
 	#region Steam Callbacks
 
-	private void OnGameLobbyJoinRequested(Lobby lobby, SteamId id)
+	private void OnGameLobbyJoinRequested(Lobby a_lobby, SteamId a_id)
 	{
-		bool isSame = lobby.Owner.Id.Equals(id);
+		bool isSame = a_lobby.Owner.Id.Equals(a_id);
 
-		Debug.Log($"Owner: {lobby.Owner}");
-		Debug.Log($"Id: {id}");
+		Debug.Log($"Owner: {a_lobby.Owner}");
+		Debug.Log($"Id: {a_id}");
 		Debug.Log($"IsSame: {isSame}", this);
 
-		StartClient(id);
+		StartClient(a_id);
 	}
 
-	private void OnLobbyInvite(Friend friend, Lobby lobby) => Debug.Log($"You got a invite from {friend.Name}", this);
+	private void OnLobbyInvite(Friend a_friend, Lobby a_lobby) => Debug.Log($"You got a invite from {a_friend.Name}", this);
 
-	private void OnLobbyMemberLeave(Lobby lobby, Friend friend) { }
+	private void OnLobbyMemberLeave(Lobby a_lobby, Friend a_friend) { }
 
-	private void OnLobbyMemberJoined(Lobby lobby, Friend friend) { }
+	private void OnLobbyMemberJoined(Lobby a_lobby, Friend a_friend) { }
 
-	private void OnLobbyEntered(Lobby lobby)
+	private void OnLobbyEntered(Lobby a_lobby)
     {
 		Debug.Log($"You have entered in lobby, clientId={NetworkManager.Singleton.LocalClientId}", this);
 
 		if (NetworkManager.Singleton.IsHost)
 			return;
 
-		StartClient(lobby.Owner.Id);
+		StartClient(a_lobby.Owner.Id);
 	}
 
-    private void OnLobbyCreated(Result result, Lobby lobby)
+    private void OnLobbyCreated(Result a_result, Lobby a_lobby)
 	{
-		if (result != Result.OK)
+		if (a_result != Result.OK)
         {
-			Debug.LogError($"Lobby couldn't be created!, {result}", this);
+			Debug.LogError($"Lobby couldn't be created!, {a_result}", this);
 			return;
 		}
 
-		lobby.SetFriendsOnly(); // Set to friends only!
-		lobby.SetData("TestingLobby", "Lobby for testing fishing wizard");
-		lobby.SetJoinable(true);
+		a_lobby.SetFriendsOnly(); // Set to friends only!
+		a_lobby.SetData("TestingLobby", "Lobby for testing fishing wizard");
+		a_lobby.SetJoinable(true);
 
 		Debug.Log("Lobby has been created!");
 	}
@@ -191,11 +191,11 @@ public class GameNetworkManager : MonoBehaviour
 
 	#region Network Callbacks
 
-	private void ClientConnected(ulong clientId) => Debug.Log($"I'm connected, clientId={clientId}");
+	private void ClientConnected(ulong a_clientId) => Debug.Log($"I'm connected, clientId={a_clientId}");
 
-    private void ClientDisconnected(ulong clientId)
+    private void ClientDisconnected(ulong a_clientId)
 	{
-		Debug.Log($"I'm disconnected, clientId={clientId}");
+		Debug.Log($"I'm disconnected, clientId={a_clientId}");
 
 		NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
 		NetworkManager.Singleton.OnClientConnectedCallback -= ClientConnected;
@@ -203,9 +203,9 @@ public class GameNetworkManager : MonoBehaviour
 
 	private void OnServerStarted() { }
 
-    private void OnClientConnectedCallback(ulong clientId) => Debug.Log($"Client connected, clientId={clientId}", this);
+    private void OnClientConnectedCallback(ulong a_clientId) => Debug.Log($"Client connected, clientId={a_clientId}", this);
 
-    private void OnClientDisconnectCallback(ulong clientId) => Debug.Log($"Client disconnected, clientId={clientId}", this);
+    private void OnClientDisconnectCallback(ulong a_clientId) => Debug.Log($"Client disconnected, clientId={a_clientId}", this);
 
     #endregion
 }
