@@ -709,7 +709,7 @@ GameObject:
   - component: {fileID: 584510726}
   - component: {fileID: 584510725}
   m_Layer: 0
-  m_Name: Cube (2)
+  m_Name: WaterDeep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1174,6 +1174,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_isLocalBuild: 1
+  m_previousIsLocalBool: 1
+  m_networkManager: {fileID: 841277076}
+  m_facePunchTransport: {fileID: 841277077}
+  m_unityTransport: {fileID: 841277079}
+  m_gameNetworkManager: {fileID: 841277078}
 --- !u!1 &908037375
 GameObject:
   m_ObjectHideFlags: 0
@@ -1288,7 +1293,7 @@ GameObject:
   - component: {fileID: 1030432953}
   - component: {fileID: 1030432952}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Water
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1814,6 +1819,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1852233030}
+    - targetCorrespondingSourceObject: {fileID: 6385438245537044139, guid: c2fe048407b568344abcccb0ca07ad30,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1852233031}
   m_SourcePrefab: {fileID: 100100000, guid: c2fe048407b568344abcccb0ca07ad30, type: 3}
 --- !u!4 &1467816962 stripped
 Transform:
@@ -1918,19 +1927,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b23ad17e10d1c174eab2ae4a704cc1aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_facePunchTransport: {fileID: 0}
-  m_unityLocalTransport: {fileID: 0}
   m_lanOptionButton: {fileID: 522347381}
   m_steamOptionButton: {fileID: 464636781}
   m_hostStartButton: {fileID: 1046729836}
   m_clientStartButton: {fileID: 1229389573}
-  m_leaveLobbyButton: {fileID: 0}
-  m_isHostOrClientText: {fileID: 0}
-  m_amountOfPlayersText: {fileID: 0}
-  m_pingText: {fileID: 0}
-  m_steamUsersConnected: {fileID: 0}
-  m_fpsText: {fileID: 0}
-  m_averagePingOfClients: {fileID: 0}
 --- !u!1 &1833624685
 GameObject:
   m_ObjectHideFlags: 0
@@ -2068,6 +2068,23 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 8018480939237723737, guid: c2fe048407b568344abcccb0ca07ad30, type: 3}
+--- !u!114 &1852233031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852233026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 0
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: ee708f1c78f65da4f95840f75327b3ee, type: 2}
 --- !u!1 &1886891102 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c2fe048407b568344abcccb0ca07ad30,
@@ -2090,7 +2107,7 @@ MeshCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
   m_Convex: 0
@@ -2363,7 +2380,7 @@ GameObject:
   - component: {fileID: 2025942949}
   - component: {fileID: 2025942948}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: WaterMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
