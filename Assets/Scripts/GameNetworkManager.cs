@@ -5,6 +5,7 @@ using Steamworks.Data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 
 public class GameNetworkManager : MonoBehaviour
@@ -15,10 +16,13 @@ public class GameNetworkManager : MonoBehaviour
 	//private bool m_connectedToSteam = false;
 	public static GameNetworkManager Instance { get; private set; }
 
-	private FacepunchTransport m_transport;
+	private FacepunchTransport m_facepunchTransport;
+	private UnityTransport m_unityTransport;
 	public Lobby? CurrentLobby { get; private set; }
 
 	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 100);
+
+	[HideInInspector] public bool m_isUsingSteamNetworking;
 
 	private void Awake()
 	{
@@ -43,9 +47,12 @@ public class GameNetworkManager : MonoBehaviour
 #else
 		Debug.unityLogger.logEnabled = Debug.isDebugBuild;
 #endif
+		m_facepunchTransport = NetworkManager.Singleton.GetComponent<FacepunchTransport>();
+		m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
-		m_transport = NetworkManager.Singleton.GetComponent<FacepunchTransport>();
-
+		if (m_isUsingSteamNetworking == false)
+			return;
+		
         SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
         SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
         SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
@@ -56,32 +63,39 @@ public class GameNetworkManager : MonoBehaviour
 
     private void OnDestroy()
 	{
-		SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
-		SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
-		SteamMatchmaking.OnLobbyMemberJoined -= OnLobbyMemberJoined;
-		SteamMatchmaking.OnLobbyMemberLeave -= OnLobbyMemberLeave;
-		SteamMatchmaking.OnLobbyInvite -= OnLobbyInvite;
-		SteamFriends.OnGameLobbyJoinRequested -= OnGameLobbyJoinRequested;
-
 		if (NetworkManager.Singleton == null)
 			return;
 
 		NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
 		NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnectCallback;
 		NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+		
+		if (m_isUsingSteamNetworking == false)
+			return;
+		
+		SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
+		SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
+		SteamMatchmaking.OnLobbyMemberJoined -= OnLobbyMemberJoined;
+		SteamMatchmaking.OnLobbyMemberLeave -= OnLobbyMemberLeave;
+		SteamMatchmaking.OnLobbyInvite -= OnLobbyInvite;
+		SteamFriends.OnGameLobbyJoinRequested -= OnGameLobbyJoinRequested;
 	}
 
 	private void OnApplicationQuit() => Disconnect();
 
 	public async void StartHost(uint a_maxMembers)
 	{
-		NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-		NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
-		NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+		if (m_isUsingSteamNetworking)
+		{
+			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+			NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
+			NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+		}
 
 		NetworkManager.Singleton.StartHost();
 
-		CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)a_maxMembers);
+		if (m_isUsingSteamNetworking)
+			CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)a_maxMembers);
     }
 
 	public void StartClient(SteamId a_id)
@@ -89,9 +103,11 @@ public class GameNetworkManager : MonoBehaviour
 		NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
 		NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
 
-		m_transport.targetSteamId = a_id;
-
-		Debug.Log($"Joining room hosted by {m_transport.targetSteamId}", this);
+		if (m_isUsingSteamNetworking)
+		{
+			m_facepunchTransport.targetSteamId = a_id;
+			Debug.Log($"Joining room hosted by {m_facepunchTransport.targetSteamId}", this);
+		}
 
 		if (NetworkManager.Singleton.StartClient())
 			Debug.Log("Client has joined!", this);
