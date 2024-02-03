@@ -1,0 +1,42 @@
+{
+    "name": "sc.posteffects.runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d60799ab2a985554ea1a39cd38695018",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "GUID:516a5277b8c3b4f4c8cc86b77b1591ff"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        ""
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.postprocessing",
+            "expression": "2.1.7",
+            "define": "PPS"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "10.3.2",
+            "define": "URP"
+        },
+        {
+            "name": "com.unity.modules.vr",
+            "expression": "1.0.0",
+            "define": "ENABLE_VR_MODULE"
+        },
+        {
+            "name": "com.unity.modules.xr",
+            "expression": "1.0.0",
+            "define": "ENABLE_XR_MODULE"
+        }
+    ],
+    "noEngineReferences": false
+}
