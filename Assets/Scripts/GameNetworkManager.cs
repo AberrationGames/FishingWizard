@@ -20,16 +20,14 @@ public class GameNetworkManager : MonoBehaviour
 	private UnityTransport m_unityTransport;
 	public Lobby? CurrentLobby { get; private set; }
 
-	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 100);
+	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 20);
 
-	[HideInInspector] public bool m_isUsingSteamNetworking;
+	public bool m_isUsingSteamNetworking;
 
 	private void Awake()
 	{
 		if (Instance == null)
-		{
 			Instance = this;
-		}
 		else
 		{
 			Destroy(gameObject);
@@ -39,9 +37,20 @@ public class GameNetworkManager : MonoBehaviour
 		DontDestroyOnLoad(gameObject);
 	}
 
+	public void SwapToLanTransport()
+	{
+		NetworkManager.Singleton.NetworkConfig.NetworkTransport = m_unityTransport;
+		m_isUsingSteamNetworking = false;
+	}
+
+	public void SwapToSteamTransport()
+	{
+		NetworkManager.Singleton.NetworkConfig.NetworkTransport = m_facepunchTransport;
+		m_isUsingSteamNetworking = true;
+	}
+	
 	private void Start()
     {
-
 #if UNITY_EDITOR
 		Debug.unityLogger.logEnabled = true;
 #else
@@ -50,18 +59,14 @@ public class GameNetworkManager : MonoBehaviour
 		m_facepunchTransport = NetworkManager.Singleton.GetComponent<FacepunchTransport>();
 		m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
-		if (m_isUsingSteamNetworking == false)
-			return;
-		
         SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
-        SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
-        SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
-        SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeave;
-        SteamMatchmaking.OnLobbyInvite += OnLobbyInvite;
-        SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
-	}
-
-    private void OnDestroy()
+		SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
+		SteamMatchmaking.OnLobbyMemberJoined += OnLobbyMemberJoined;
+		SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeave;
+		SteamMatchmaking.OnLobbyInvite += OnLobbyInvite;
+		SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
+    }
+	private void OnDestroy()
 	{
 		if (NetworkManager.Singleton == null)
 			return;
@@ -69,9 +74,6 @@ public class GameNetworkManager : MonoBehaviour
 		NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
 		NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnectCallback;
 		NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
-		
-		if (m_isUsingSteamNetworking == false)
-			return;
 		
 		SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
 		SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
@@ -83,8 +85,9 @@ public class GameNetworkManager : MonoBehaviour
 
 	private void OnApplicationQuit() => Disconnect();
 
-	public async void StartHost(uint a_maxMembers)
+	public async void StartSteamHost(uint a_maxMembers)
 	{
+		Debug.Log("Started hosting, isSteamHost=" + m_isUsingSteamNetworking.ToString());
 		if (m_isUsingSteamNetworking)
 		{
 			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
@@ -97,6 +100,10 @@ public class GameNetworkManager : MonoBehaviour
 		if (m_isUsingSteamNetworking)
 			CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)a_maxMembers);
     }
+	public void StartLocalHost(uint a_maxMembers = 4)
+	{
+		NetworkManager.Singleton.StartHost();
+	}
 
 	public void StartClient(SteamId a_id)
 	{
@@ -128,19 +135,15 @@ public class GameNetworkManager : MonoBehaviour
 		try
 		{
 			Lobbies.Clear();
-
-		var lobbies = await SteamMatchmaking.LobbyList
-                .FilterDistanceClose()
-		.WithMaxResults(a_maxResults)
-		.RequestAsync();
-
-		if (lobbies != null)
-		{
-			for (int i = 0; i < lobbies.Length; i++)
+			var lobbies = await SteamMatchmaking.LobbyList.FilterDistanceClose().WithMaxResults(a_maxResults).RequestAsync();
+			
+			if (lobbies == null)
+				return false;
+			
+            for (int i = 0; i < lobbies.Length; i++)
 				Lobbies.Add(lobbies[i]);
-		}
-
-		return true;
+			
+            return true;
 		}
 		catch (Exception ex)
 		{
@@ -152,15 +155,14 @@ public class GameNetworkManager : MonoBehaviour
 
 	private Steamworks.ServerList.Internet GetInternetRequest()
 	{
+		//We can add filters to this request with request.AddFilter("","")
 		var request = new Steamworks.ServerList.Internet();
-		//request.AddFilter("secure", "1");
-		//request.AddFilter("and", "1");
-		//request.AddFilter("game type", "1");
 		return request;
 	}
 
 	#region Steam Callbacks
 
+	//This is where the invite is accepted and the client is now joining/joined the lobby.
 	private void OnGameLobbyJoinRequested(Lobby a_lobby, SteamId a_id)
 	{
 		bool isSame = a_lobby.Owner.Id.Equals(a_id);
@@ -172,11 +174,9 @@ public class GameNetworkManager : MonoBehaviour
 		StartClient(a_id);
 	}
 
-	private void OnLobbyInvite(Friend a_friend, Lobby a_lobby) => Debug.Log($"You got a invite from {a_friend.Name}", this);
-
-	private void OnLobbyMemberLeave(Lobby a_lobby, Friend a_friend) { }
-
-	private void OnLobbyMemberJoined(Lobby a_lobby, Friend a_friend) { }
+	private void OnLobbyInvite(Friend a_friend, Lobby a_lobby) { /* Received an invite from .... */ }
+	private void OnLobbyMemberLeave(Lobby a_lobby, Friend a_friend) { /* Manage lobby ui */ }
+	private void OnLobbyMemberJoined(Lobby a_lobby, Friend a_friend) { /* Manage lobby ui */ }
 
 	private void OnLobbyEntered(Lobby a_lobby)
     {
@@ -196,10 +196,10 @@ public class GameNetworkManager : MonoBehaviour
 			return;
 		}
 
+		//I believe this is for the use of filters in the lobby search system leaving here so we know to add these when we are doing online lobbies for people without friends to play with.
 		a_lobby.SetFriendsOnly(); // Set to friends only!
 		a_lobby.SetData("TestingLobby", "Lobby for testing fishing wizard");
 		a_lobby.SetJoinable(true);
-
 		Debug.Log("Lobby has been created!");
 	}
 
