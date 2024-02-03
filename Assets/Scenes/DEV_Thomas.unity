@@ -1257,7 +1257,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 841277075}
-  - component: {fileID: 841277080}
   - component: {fileID: 841277078}
   - component: {fileID: 841277076}
   - component: {fileID: 841277077}
@@ -1329,7 +1328,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 841277074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44dd247a00edbfa44b77868d755af6ea, type: 3}
   m_Name: 
@@ -1372,24 +1371,11 @@ MonoBehaviour:
   ConnectionData:
     Address: 127.0.0.1
     Port: 7777
-    ServerListenAddress: 127.0.0.1
+    ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
     PacketDropRate: 0
---- !u!114 &841277080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 841277074}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebb32a3871f506148b7f06275ede1a44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_isLocalBuild: 1
 --- !u!1 &888745447
 GameObject:
   m_ObjectHideFlags: 0
@@ -2073,19 +2059,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b23ad17e10d1c174eab2ae4a704cc1aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_facePunchTransport: {fileID: 0}
-  m_unityLocalTransport: {fileID: 0}
   m_lanOptionButton: {fileID: 522347381}
   m_steamOptionButton: {fileID: 464636781}
   m_hostStartButton: {fileID: 1046729836}
   m_clientStartButton: {fileID: 1229389573}
-  m_leaveLobbyButton: {fileID: 0}
-  m_isHostOrClientText: {fileID: 0}
-  m_amountOfPlayersText: {fileID: 0}
-  m_pingText: {fileID: 0}
-  m_steamUsersConnected: {fileID: 0}
-  m_fpsText: {fileID: 0}
-  m_averagePingOfClients: {fileID: 0}
 --- !u!1 &1833624685
 GameObject:
   m_ObjectHideFlags: 0
