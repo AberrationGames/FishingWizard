@@ -1,0 +1,12 @@
+{
+    "name": "sc.posteffects",
+    "displayName": "SC Post Effects",
+    "version": "2.3.6",
+    "unity": "2020.3",
+    "description": "Additional effects for Unity's post processing.",
+    "author": {
+        "name": "Staggart Creations",
+        "email": "contact@staggart.xyz",
+        "url": "http://staggart.xyz/"
+    }
+}

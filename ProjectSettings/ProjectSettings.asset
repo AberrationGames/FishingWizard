@@ -803,7 +803,8 @@ PlayerSettings:
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Standalone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;TMP_PRESENT;USE_ADDRESSABLES;USE_CINEMACHINE;USE_NEW_INPUT;USE_TWINE
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
