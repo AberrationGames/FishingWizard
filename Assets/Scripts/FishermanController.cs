@@ -73,6 +73,10 @@ namespace FishingWizard
             //Otherwise we dont want to see the model 
             gameObject.layer = 7;
             SetupInput();
+            
+            #if DEBUG
+                Debug.Log("a");
+            #endif
         }
 
         private void Update()
