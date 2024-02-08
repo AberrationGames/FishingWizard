@@ -22,7 +22,7 @@ public class GameNetworkManager : MonoBehaviour
 
 	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 20);
 
-	public bool m_isUsingSteamNetworking;
+	[HideInInspector] public bool m_isUsingSteamNetworking;
 
 	private void Awake()
 	{
