@@ -514,7 +514,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &191557576
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2024,6 +2024,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 760674055}
+  - component: {fileID: 760674056}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -2047,6 +2048,27 @@ Transform:
   - {fileID: 232942519}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &760674056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760674054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 975a3275518497b4880d6a99943577e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_startScreenObject: {fileID: 191557575}
+  m_startGameSinglePlayerButton: {fileID: 1640665897}
+  m_hostLobbyButton: {fileID: 1543921061}
+  m_joinLobbyButton: {fileID: 956432474}
+  m_settingsButton: {fileID: 133956178}
+  m_quitGameButton: {fileID: 561765218}
+  m_networkSelectionObject: {fileID: 297031250}
+  m_lobbyScreenObject: {fileID: 1555643790}
+  m_settingsScreenObject: {fileID: 1746845310}
 --- !u!1 &769191039
 GameObject:
   m_ObjectHideFlags: 0
