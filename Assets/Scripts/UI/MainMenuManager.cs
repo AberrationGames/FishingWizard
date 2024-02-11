@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using FishingWizard.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -8,6 +11,10 @@ using UnityEngine.UI;
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
+    public static MainMenuManager Instance;
+    //This is here so text can add themselves to this list and when any screen transition occurs they will be set back to normal.
+    public List<ButtonTextOnHighlight> m_selectedTexts = new List<ButtonTextOnHighlight>();
+    
     [SerializeField] private GameObject m_startScreenObject;
     
     [SerializeField] private Button m_startGameSinglePlayerButton;
@@ -20,21 +27,84 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button m_onlineOptionButton;
     [SerializeField] private Button m_lanOptionButton;
     
+    //Decide later how to display the players individually in the lobby. should be able to fetch the users steam id and icon. in lan just do player one two three etc with a default icon.
     [SerializeField] private GameObject m_lobbyScreenObject;
     [SerializeField] private Button m_lobbyStartGameButton;
     [SerializeField] private Button m_lobbyReadyUpButton;
     [SerializeField] private Button m_lobbyBackButton;
-    //Decide later how to display the players individually in the lobby. should be able to fetch the users steam id and icon. in lan just do player one two three etc with a default icon.
     
     [SerializeField] private GameObject m_settingsScreenObject;
     
-    void Start()
+    private void Awake()
+    {
+        if (!Instance)
+            Instance = this;
+        else 
+            Debug.LogError("There are two main menu managers. FIX IT");
+        
+        m_startGameSinglePlayerButton.onClick.AddListener(LoadGameSinglePlayer);
+        m_hostLobbyButton.onClick.AddListener(GotoNetworkSelectionScreenHost);    
+        m_joinLobbyButton.onClick.AddListener(GotoNetworkSelectionScreenClient);
+        m_settingsButton.onClick.AddListener(GotoSettingsScreen);
+        m_quitGameButton.onClick.AddListener(Application.Quit);
+
+        //We use find objects of type as the event system is in PROD_DONOTDESTROY and cannot be manually referenced outside the scene.
+        FindObjectOfType<EventSystem>().SetSelectedGameObject(m_startGameSinglePlayerButton.gameObject);
+    }
+
+    private void Start()
+    {
+    }
+
+    private void LoadGameSinglePlayer()
     {
         
     }
-
-    void Update()
+    //Easier and cleaner to disable all then reenable.
+    private void DisableAllScreenObjects()
     {
+        for (int i = 0; i < m_selectedTexts.Count; i++)
+            m_selectedTexts[i].SetButtonRegular();
+        m_selectedTexts.Clear();
         
+        m_lobbyScreenObject.SetActive(false);
+        m_startScreenObject.SetActive(false);
+        m_networkSelectionObject.SetActive(false);
+        m_settingsScreenObject.SetActive(false);
+    }
+
+    [ContextMenu("Goto Settings Menu")]
+    private void GotoSettingsScreen()
+    {
+        DisableAllScreenObjects();
+        m_settingsScreenObject.SetActive(true);
+    }
+    
+    [ContextMenu("Goto NetworkSelectionHost Menu")]
+    private void GotoNetworkSelectionScreenHost()
+    {
+        DisableAllScreenObjects();
+        m_networkSelectionObject.SetActive(true);
+    }
+    
+    [ContextMenu("Goto NetworkSelectionClient Menu")]
+    private void GotoNetworkSelectionScreenClient()
+    {
+        DisableAllScreenObjects();
+        m_networkSelectionObject.SetActive(true);
+    }
+    
+    [ContextMenu("Goto Lobby Menu")]
+    private void GotoLobbyScreen()
+    {
+        DisableAllScreenObjects();
+        m_lobbyScreenObject.SetActive(true);
+    }
+    
+    [ContextMenu("Goto Start Menu")]
+    private void GotoStartScreen()
+    {
+        DisableAllScreenObjects();
+        m_startScreenObject.SetActive(true);
     }
 }
