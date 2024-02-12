@@ -6,11 +6,8 @@ public class LobbyFinderUiManager : MonoBehaviour
 {
     [SerializeField] private GameObject m_lobbyItemPrefab;
     [SerializeField] private GameObject m_lobbyContainer;
-
-    private void OnEnable()
-    {
-        SetLobbyItems();
-    }
+    //Since lobbies might take a bit to find we just want a loading screen to let the player know something is still happening.
+    [SerializeField] private GameObject m_loadingScreenObject;
 
     public void SetLobbyItems()
     {
@@ -21,17 +18,5 @@ public class LobbyFinderUiManager : MonoBehaviour
             Destroy(m_lobbyContainer.transform.GetChild(0).gameObject);
             i--;
         }
-        for (int i = 0; i < lobbySettings.Length; i++)
-        {
-            GameObject lobbyItem = Instantiate(m_lobbyItemPrefab, m_lobbyContainer.transform);
-            LobbyUiItem newLobbyItem = lobbyItem.GetComponent<LobbyUiItem>();
-            int indexCopy = i;
-            //newLobbyItem.SetData(
-            //    lobbySettings[i].Value.SetPublic().m_isPublicLobby ? "Public" : "Private", 
-            //    a_lobbyInformation[i].m_lobbyDescription, 
-            //    a_lobbyInformation[i].m_currentPlayerCount, 
-            //    a_lobbyInformation[i].m_lobbyMaxPlayers, 
-            //    () => { GameNetworkManager.Instance.JoinLobbyAtIndex(indexCopy);});
-        } 
     }
 }
