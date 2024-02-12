@@ -9,8 +9,7 @@ public enum GameLobbyType
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    //Default is probably going to be a steam lobby.
-    public GameLobbyType CurrentLobbyType = GameLobbyType.OnlineMultiplayer;
+    public GameLobbyType m_currentLobbyType = GameLobbyType.OnlineMultiplayer;
 
     private void Awake()
     {

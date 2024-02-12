@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LoadManagers : MonoBehaviour
+public class SceneLoadingManager : MonoBehaviour
 {
     private void Awake()
     {

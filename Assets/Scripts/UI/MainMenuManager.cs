@@ -77,14 +77,14 @@ public class MainMenuManager : MonoBehaviour
     }
 
     [ContextMenu("Goto Settings Menu")]
-    private void GotoSettingsScreen()
+    public void GotoSettingsScreen()
     {
         DisableAllScreenObjects();
         m_settingsScreenObject.SetActive(true);
     }
 
     [ContextMenu("Goto NetworkSelectionHost Menu")]
-    private void GotoNetworkSelectionScreenHost()
+    public void GotoNetworkSelectionScreenHost()
     {
         DisableAllScreenObjects();
         m_networkSelectionObject.SetActive(true);
@@ -105,7 +105,7 @@ public class MainMenuManager : MonoBehaviour
     }
     
     [ContextMenu("Goto NetworkSelectionClient Menu")]
-    private void GotoNetworkSelectionScreenClient()
+    public void GotoNetworkSelectionScreenClient()
     {
         DisableAllScreenObjects();
         m_networkSelectionObject.SetActive(true);
