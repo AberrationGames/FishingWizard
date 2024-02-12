@@ -1,7 +1,5 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace FishingWizard.UI
 {
@@ -46,6 +44,7 @@ namespace FishingWizard.UI
         {
             m_buttonText.fontSize = m_pressedFontSize;
             m_buttonText.color = m_pressedColor;
+            MainMenuManager.Instance.m_selectedTexts.Add(this);
         }
     }
 }

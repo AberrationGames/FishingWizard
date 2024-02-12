@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Netcode.Transports.Facepunch;
-using TMPro;
 using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class NetworkDebugUi : MonoBehaviour
 {
     public static NetworkDebugUi Instance;
@@ -39,7 +34,7 @@ public class NetworkDebugUi : MonoBehaviour
         m_hostStartButton.onClick.AddListener(() =>
         {
             if (GameNetworkManager.Instance.m_isUsingSteamNetworking)
-                GameNetworkManager.Instance.StartSteamHost(8);
+                GameNetworkManager.Instance.StartHosting();
             else
                 NetworkManager.Singleton.StartHost();
         });

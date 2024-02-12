@@ -1,28 +1,40 @@
 using System;
+using System.Collections;
 using Netcode.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameNetworkManager : MonoBehaviour
 {
-	//private string m_playerName = "";
-	//private SteamId m_playerSteamID = 0;
-	//private string m_playerSteamIDString = "";
-	//private bool m_connectedToSteam = false;
+	//This is to have a saveable data struct so the users lobby settings can be saved and loaded each time so changing it isnt annoying and required every time.
+	[Serializable]
+	public struct LocalLobbySettings
+	{
+		public bool m_isPublicLobby;
+		public string m_lobbyDescription;
+		//current player count is only used for ui, every other check for player count limits will be done through steamworks lobby system
+		public int m_currentPlayerCount;
+		[FormerlySerializedAs("m_lobbyMaxsize")] public int m_lobbyMaxPlayers;
+	}
 	public static GameNetworkManager Instance { get; private set; }
+
+	public LocalLobbySettings m_localLobbySettings;
 
 	private FacepunchTransport m_facepunchTransport;
 	private UnityTransport m_unityTransport;
 	public Lobby? CurrentLobby { get; private set; }
 
-	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 20);
+	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 4);
 
-	[HideInInspector] public bool m_isUsingSteamNetworking;
+	public bool m_isUsingSteamNetworking;
 
 	private void Awake()
 	{
@@ -48,7 +60,17 @@ public class GameNetworkManager : MonoBehaviour
 		NetworkManager.Singleton.NetworkConfig.NetworkTransport = m_facepunchTransport;
 		m_isUsingSteamNetworking = true;
 	}
-	
+
+	public void Update()
+	{
+		SteamClient.RunCallbacks();
+	}
+
+	public void OnDisable()
+	{
+		SteamClient.Shutdown();
+	}
+
 	private void Start()
     {
 #if UNITY_EDITOR
@@ -65,6 +87,21 @@ public class GameNetworkManager : MonoBehaviour
 		SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeave;
 		SteamMatchmaking.OnLobbyInvite += OnLobbyInvite;
 		SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
+
+		//Find users ipv4 so we can set that for the lan networking without getting the user to try and find it.
+		foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+		{
+			if (address.AddressFamily == AddressFamily.InterNetwork)
+			{
+				m_unityTransport.ConnectionData.Address = address.ToString();
+				break;
+			}
+		}
+
+		m_localLobbySettings.m_isPublicLobby = false;
+		m_localLobbySettings.m_lobbyMaxPlayers = 4;
+		m_localLobbySettings.m_lobbyDescription = "Lobby Description.";
+		m_localLobbySettings.m_currentPlayerCount = 1;
     }
 	private void OnDestroy()
 	{
@@ -85,9 +122,10 @@ public class GameNetworkManager : MonoBehaviour
 
 	private void OnApplicationQuit() => Disconnect();
 
-	public async void StartSteamHost(uint a_maxMembers)
+	[ContextMenu("Start Host")]
+	public async void StartHosting()
 	{
-		Debug.Log("Started hosting, isSteamHost=" + m_isUsingSteamNetworking.ToString());
+		Debug.Log("Started hosting, isSteamHost=" + m_isUsingSteamNetworking);
 		if (m_isUsingSteamNetworking)
 		{
 			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
@@ -98,12 +136,21 @@ public class GameNetworkManager : MonoBehaviour
 		NetworkManager.Singleton.StartHost();
 
 		if (m_isUsingSteamNetworking)
-			CurrentLobby = await SteamMatchmaking.CreateLobbyAsync((int)a_maxMembers);
+			CurrentLobby = await SteamMatchmaking.CreateLobbyAsync(m_localLobbySettings.m_lobbyMaxPlayers);
     }
-	public void StartLocalHost(uint a_maxMembers = 4)
+	
+	public void FindLobbies()
 	{
-		NetworkManager.Singleton.StartHost();
+		IEnumerable<Friend> steamFriends = SteamFriends.GetFriends();
+		foreach (Friend friend in steamFriends)
+		{
+			if (!friend.IsPlayingThisGame || friend.GameInfo == null || friend.GameInfo.Value.Lobby == null)
+				continue;
+            Lobbies.Add(friend.GameInfo.Value.Lobby.Value);
+		}
+        //SteamMatchmaking.LobbyList.WithMaxResults(10).
 	}
+
 
 	public void StartClient(SteamId a_id)
 	{
@@ -128,36 +175,6 @@ public class GameNetworkManager : MonoBehaviour
 			return;
 
 		NetworkManager.Singleton.Shutdown();
-	}
-
-	public async Task<bool> RefreshLobbies(int a_maxResults = 20)
-	{
-		try
-		{
-			Lobbies.Clear();
-			var lobbies = await SteamMatchmaking.LobbyList.FilterDistanceClose().WithMaxResults(a_maxResults).RequestAsync();
-			
-			if (lobbies == null)
-				return false;
-			
-            for (int i = 0; i < lobbies.Length; i++)
-				Lobbies.Add(lobbies[i]);
-			
-            return true;
-		}
-		catch (Exception ex)
-		{
-			Debug.Log("Error fetching lobbies", this);
-			Debug.LogException(ex, this);
-			return false;
-		}
-	}
-
-	private Steamworks.ServerList.Internet GetInternetRequest()
-	{
-		//We can add filters to this request with request.AddFilter("","")
-		var request = new Steamworks.ServerList.Internet();
-		return request;
 	}
 
 	#region Steam Callbacks
@@ -224,4 +241,9 @@ public class GameNetworkManager : MonoBehaviour
     private void OnClientDisconnectCallback(ulong a_clientId) => Debug.Log($"Client disconnected, clientId={a_clientId}", this);
 
     #endregion
+
+    public void JoinLobbyAtIndex(int a_lobbyListIndex)
+    {
+	    throw new NotImplementedException();
+    }
 }
