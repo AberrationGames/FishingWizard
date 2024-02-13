@@ -35,7 +35,9 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button m_lobbyBackButton;
     
     [SerializeField] private GameObject m_settingsScreenObject;
-    
+
+    [Header("THIS IS FOR DEBUGGING")]
+    [SerializeField] private bool m_isHost = true;
     
     private void Awake()
     {
@@ -59,8 +61,9 @@ public class MainMenuManager : MonoBehaviour
 
     private void LoadGameSinglePlayer()
     {
-        
+        GameManager.Instance.LoadGame(m_isHost);
     }
+    
     //Easier and cleaner to disable all then reenable.
     private void DisableAllScreenObjects()
     {
