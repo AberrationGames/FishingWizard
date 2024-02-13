@@ -5,6 +5,7 @@ using Steamworks;
 using Steamworks.Data;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Unity.Netcode;
@@ -22,7 +23,7 @@ public class GameNetworkManager : MonoBehaviour
 		public string m_lobbyDescription;
 		//current player count is only used for ui, every other check for player count limits will be done through steamworks lobby system
 		public int m_currentPlayerCount;
-		[FormerlySerializedAs("m_lobbyMaxsize")] public int m_lobbyMaxPlayers;
+		public int m_lobbyMaxPlayers;
 	}
 	public static GameNetworkManager Instance { get; private set; }
 
@@ -102,6 +103,8 @@ public class GameNetworkManager : MonoBehaviour
 		m_localLobbySettings.m_lobbyMaxPlayers = 4;
 		m_localLobbySettings.m_lobbyDescription = "Lobby Description.";
 		m_localLobbySettings.m_currentPlayerCount = 1;
+		
+		FindLobbies();
     }
 	private void OnDestroy()
 	{
@@ -126,12 +129,9 @@ public class GameNetworkManager : MonoBehaviour
 	public async void StartHosting()
 	{
 		Debug.Log("Started hosting, isSteamHost=" + m_isUsingSteamNetworking);
-		if (m_isUsingSteamNetworking)
-		{
-			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-			NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
-			NetworkManager.Singleton.OnServerStarted += OnServerStarted;
-		}
+		NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+		NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
+		NetworkManager.Singleton.OnServerStarted += OnServerStarted;
 
 		NetworkManager.Singleton.StartHost();
 
@@ -148,7 +148,6 @@ public class GameNetworkManager : MonoBehaviour
 				continue;
             Lobbies.Add(friend.GameInfo.Value.Lobby.Value);
 		}
-        //SteamMatchmaking.LobbyList.WithMaxResults(10).
 	}
 
 
@@ -244,6 +243,5 @@ public class GameNetworkManager : MonoBehaviour
 
     public void JoinLobbyAtIndex(int a_lobbyListIndex)
     {
-	    throw new NotImplementedException();
     }
 }

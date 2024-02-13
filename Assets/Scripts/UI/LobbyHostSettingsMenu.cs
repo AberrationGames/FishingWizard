@@ -27,6 +27,10 @@ public class LobbyHostSettingsMenu : MonoBehaviour
             GameNetworkManager.Instance.m_localLobbySettings.m_lobbyMaxPlayers = int.Parse(a_newValue);
         });
         
-        m_hostLobbyButton.onClick.AddListener(MainMenuManager.Instance.GotoLobbyScreen);
+        m_hostLobbyButton.onClick.AddListener(() =>
+        {
+            GameNetworkManager.Instance.StartHosting();
+            MainMenuManager.Instance.GotoLobbyScreen();
+        });
     }
 }
