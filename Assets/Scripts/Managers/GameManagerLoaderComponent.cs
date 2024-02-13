@@ -8,6 +8,10 @@ public class GameManagerLoaderComponent : MonoBehaviour
     
     private void Awake()
     {
+        //We just dont load this again if its already there as for dev purposes being able to play specific scenes without going through the menu will be useful.
+        if (FindObjectOfType<GameNetworkManager>() != null)
+            return;
+        
         //Network manager cannot be nested so we use that as the manager parent object
         GameObject networkManager = Instantiate(m_networkManager);
         networkManager.transform.position = Vector3.zero;

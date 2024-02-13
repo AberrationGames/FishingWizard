@@ -24,33 +24,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void LoadGame()
+    public void LoadGame(bool a_isHost)
     {
-        StartCoroutine(LoadScenesAsync());
+        StartCoroutine(LoadGameAsync(a_isHost));
     }
 
-    
-    /// <summary>
-    /// Unloads main menu scene into main scene for testing at the moment 
-    /// </summary>
-    IEnumerator LoadScenesAsync()
+    private IEnumerator LoadGameAsync(bool a_isHost)
     {
-        //0 Should always be the main menu.
-        AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(0);
-        while (!unloadOperation.isDone)
-        {
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("DEV_Thomas", LoadSceneMode.Single);
+        while (!asyncOperation.isDone)
             yield return null;
-        }
         
-        SceneManager.LoadScene("DEV_Thomas");
-
         switch (m_currentLobbyType)
         {
             case GameLobbyType.SinglePlayer:
                 break;
             case GameLobbyType.OnlineMultiplayer:
             case GameLobbyType.LocalAreaNetworkMultiplayer:
-                GameNetworkManager.Instance.StartHosting();
+                if (a_isHost)
+                    GameNetworkManager.Instance.StartHosting();
+                else
+                    GameNetworkManager.Instance.StartClient(0);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

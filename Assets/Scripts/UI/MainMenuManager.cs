@@ -116,7 +116,7 @@ public class MainMenuManager : MonoBehaviour
         m_lanOptionButton.onClick.AddListener(() =>
         {
             GameNetworkManager.Instance.SwapToLanTransport();
-            GameNetworkManager.Instance.StartClient(0);
+            GameManager.Instance.LoadGame(false);
         });
         m_onlineOptionButton.onClick.AddListener(() =>
         {
