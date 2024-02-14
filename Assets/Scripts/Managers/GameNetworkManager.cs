@@ -36,6 +36,7 @@ public class GameNetworkManager : MonoBehaviour
 	public List<Lobby> Lobbies { get; private set; } = new List<Lobby>(capacity: 4);
 
 	public bool m_isUsingSteamNetworking;
+	public SteamId m_steamID;
 
 	private void Awake()
 	{
@@ -103,8 +104,10 @@ public class GameNetworkManager : MonoBehaviour
 		m_localLobbySettings.m_lobbyMaxPlayers = 4;
 		m_localLobbySettings.m_lobbyDescription = "Lobby Description.";
 		m_localLobbySettings.m_currentPlayerCount = 1;
-		
-		FindLobbies();
+
+		m_steamID = SteamClient.SteamId;
+
+		//FindLobbies();
     }
 	private void OnDestroy()
 	{
@@ -187,7 +190,7 @@ public class GameNetworkManager : MonoBehaviour
 		Debug.Log($"Id: {a_id}");
 		Debug.Log($"IsSame: {isSame}", this);
 
-		StartClient(a_id);
+		GameManager.Instance.LoadGame(false, a_lobby.Owner.Id);
 	}
 
 	private void OnLobbyInvite(Friend a_friend, Lobby a_lobby) { /* Received an invite from .... */ }

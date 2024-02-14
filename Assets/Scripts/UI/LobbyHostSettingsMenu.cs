@@ -30,7 +30,7 @@ public class LobbyHostSettingsMenu : MonoBehaviour
         m_hostLobbyButton.onClick.AddListener(() =>
         {
             GameManager.Instance.m_currentLobbyType = GameNetworkManager.Instance.m_isUsingSteamNetworking ? GameLobbyType.OnlineMultiplayer : GameLobbyType.LocalAreaNetworkMultiplayer;
-            GameManager.Instance.LoadGame(true);
+            GameManager.Instance.LoadGame(true, GameNetworkManager.Instance.m_steamID);
         });
     }
 }

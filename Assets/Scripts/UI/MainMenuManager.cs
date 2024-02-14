@@ -61,7 +61,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void LoadGameSinglePlayer()
     {
-        GameManager.Instance.LoadGame(m_isHost);
+        GameManager.Instance.LoadGame(m_isHost, GameNetworkManager.Instance.m_steamID);
     }
     
     //Easier and cleaner to disable all then reenable.
@@ -119,7 +119,7 @@ public class MainMenuManager : MonoBehaviour
         m_lanOptionButton.onClick.AddListener(() =>
         {
             GameNetworkManager.Instance.SwapToLanTransport();
-            GameManager.Instance.LoadGame(false);
+            GameManager.Instance.LoadGame(false, GameNetworkManager.Instance.m_steamID);
         });
         m_onlineOptionButton.onClick.AddListener(() =>
         {

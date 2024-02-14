@@ -73,6 +73,7 @@ namespace FishingWizard
             //Otherwise we dont want to see the model 
             gameObject.layer = 7;
             SetupInput();
+            transform.position = new Vector3(0, 15, 0);
         }
 
         private void Update()

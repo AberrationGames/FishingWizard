@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Steamworks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,12 +25,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void LoadGame(bool a_isHost)
+    public void LoadGame(bool a_isHost, SteamId a_steamId)
     {
-        StartCoroutine(LoadGameAsync(a_isHost));
+        StartCoroutine(LoadGameAsync(a_isHost, a_steamId));
     }
 
-    private IEnumerator LoadGameAsync(bool a_isHost)
+    private IEnumerator LoadGameAsync(bool a_isHost, SteamId a_steamId)
     {
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("DEV_Thomas", LoadSceneMode.Single);
         while (!asyncOperation.isDone)
@@ -44,7 +45,9 @@ public class GameManager : MonoBehaviour
                 if (a_isHost)
                     GameNetworkManager.Instance.StartHosting();
                 else
-                    GameNetworkManager.Instance.StartClient(0);
+                {
+                    GameNetworkManager.Instance.StartClient(a_steamId);
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

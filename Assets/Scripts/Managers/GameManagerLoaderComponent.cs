@@ -1,10 +1,14 @@
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManagerLoaderComponent : MonoBehaviour
 {
     [SerializeField] private GameObject m_eventSystem;
     [SerializeField] private GameObject m_gameManager;
     [SerializeField] private GameObject m_networkManager;
+
+    private bool m_didSpawnObjects = false;
     
     private void Awake()
     {
@@ -23,5 +27,12 @@ public class GameManagerLoaderComponent : MonoBehaviour
         
         //Since the other managers are parented under network manager only network needs to be put into the dont destroy on load.
         DontDestroyOnLoad(networkManager);
+        m_didSpawnObjects = true;
+    }
+
+    private void Start()
+    {
+        if (SceneManager.GetActiveScene().name != "PROD_MainMenu" && m_didSpawnObjects)
+            GameNetworkManager.Instance.StartHosting();
     }
 }
