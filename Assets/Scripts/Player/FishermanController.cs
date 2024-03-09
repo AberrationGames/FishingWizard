@@ -1,9 +1,10 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace FishingWizard
 {
-    public class FishermanController : MonoBehaviour 
+    public class FishermanController : NetworkBehaviour
     {
         [SerializeField] private float m_characterMoveSpeed = 20f;
         [SerializeField] private float m_lookSpeedX = 20f;
@@ -37,12 +38,12 @@ namespace FishingWizard
 
         private bool m_isNetworkSpawned;
 
-        public void OnNetworkSpawn()
+        public override void OnNetworkSpawn()
         {
-            //if (IsHost)
-            //{
-            //    m_isNetworkSpawned = true;
-            //}
+            if (IsHost)
+            {
+                m_isNetworkSpawned = true;
+            }
         }
         
         private void Start()
@@ -53,32 +54,32 @@ namespace FishingWizard
             m_lureContainer = GameObject.Find("LureContainer");
             m_slowDownPercentCalculated = (1 - (m_slowDownPercent / 100));
 
-            //if (!IsOwner)
-            //{
-            //    //8 = do render 
-            //    gameObject.layer = 8;
-            //    //Disable the cameras on the other characters so no overriding occurs.
-            //    GetComponentInChildren<AudioListener>().enabled = false;
-            //    GetComponentInChildren<Camera>().enabled = false;
-            //    for (int i = 0; i < transform.GetChild(0).childCount; i++)
-            //    {
-            //        Transform child = transform.GetChild(0).GetChild(0);
-            //        if (child.gameObject.name == "LookDirection")
-            //            child.gameObject.layer = 8;
-            //    }
-            //    return;
-            //}
-            //
-            ////Otherwise we dont want to see the model 
-            //gameObject.layer = 7;
-            //SetupInput();
-            //transform.position = new Vector3(0, 15, 0);
+            if (!IsOwner)
+            {
+                //8 = do render 
+                gameObject.layer = 8;
+                //Disable the cameras on the other characters so no overriding occurs.
+                GetComponentInChildren<AudioListener>().enabled = false;
+                GetComponentInChildren<Camera>().enabled = false;
+                for (int i = 0; i < transform.GetChild(0).childCount; i++)
+                {
+                    Transform child = transform.GetChild(0).GetChild(0);
+                    if (child.gameObject.name == "LookDirection")
+                        child.gameObject.layer = 8;
+                }
+                return;
+            }
+            
+            //Otherwise we dont want to see the model 
+            gameObject.layer = 7;
+            SetupInput();
+            transform.position = new Vector3(0, 15, 0);
         }
 
         private void Update()
         {
             m_inputDelayTimer += Time.deltaTime;
-            //if (!IsHost || m_inputDelayTimer < InputEnterDelay) 
+            if (!IsHost || m_inputDelayTimer < InputEnterDelay) 
                 return;
 
             if (m_playerCamera != null && m_isNetworkSpawned)
@@ -115,7 +116,7 @@ namespace FishingWizard
 
             Vector3 rotation = m_playerCamera.transform.rotation.eulerAngles;
             rotation.x += xValue;
-            rotation.x = HelperFunctions.ClampAngle(rotation.x, m_minXCameraAngle, m_maxXCameraAngle);
+            rotation.x = GenericHelperScripts.HelperFunctions.ClampAngle(rotation.x, m_minXCameraAngle, m_maxXCameraAngle);
             m_playerCamera.transform.rotation = Quaternion.Euler(rotation);
             transform.rotation *= Quaternion.Euler(0, rotationAmount,0);
         }
@@ -146,13 +147,13 @@ namespace FishingWizard
 
         #region RPCFunctions 
 
-        //[ServerRpc]
+        [ServerRpc]
         private void SyncInputServerRpc(Vector2 a_movementInput, Vector2 a_cameraMovementInput)
         {
             m_movementInput = a_movementInput;
             m_cameraMovementInput = a_cameraMovementInput;
         }
-        //[ServerRpc]
+        [ServerRpc]
         private void SyncMouseInputServerRpc(bool a_leftClickPressed, bool a_rightClickPressed)
         {
             if (a_leftClickPressed)
@@ -162,7 +163,7 @@ namespace FishingWizard
                 StartReelingLure();
             }
         }
-        //[ClientRpc]
+        [ClientRpc]
         private void SendTransformDataClientRpc(Vector3 a_position, Vector3 a_rotation)
         {
             transform.position = a_position;
@@ -202,57 +203,57 @@ namespace FishingWizard
         private void WasdMovementStarted(InputAction.CallbackContext a_context)
         {
             m_movementInput = a_context.ReadValue<Vector2>();
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
         private void WasdMovementEnded(InputAction.CallbackContext a_context)
         {
             m_movementInput = Vector2.zero;
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
         private void CameraMovementXStarted(InputAction.CallbackContext a_context)
         {
             m_cameraMovementInput.x = a_context.ReadValue<float>();
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
         private void CameraMovementXEnded(InputAction.CallbackContext a_context)
         {
             m_cameraMovementInput.x = 0;
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
         private void CameraMovementYStarted(InputAction.CallbackContext a_context)
         {
             m_cameraMovementInput.y = a_context.ReadValue<float>();
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
         private void CameraMovementYEnded(InputAction.CallbackContext a_context)
         {
             m_cameraMovementInput.y = 0;
-            //if (!IsHost || !IsServer)
+            if (!IsHost || !IsServer)
                 SyncInputServerRpc(m_movementInput, m_cameraMovementInput);
         }
 
         private void CastLureStarted(InputAction.CallbackContext a_context)
         {
-            //if (!IsHost)
-            //{
+            if (!IsHost)
+            {
                 SyncMouseInputServerRpc(true, false);
                 return;   
-            //}
+            }
             CastLureFromRod();
         }
 
         private void ReelInputStarted(InputAction.CallbackContext a_context)
         {
-            //if (!IsHost)
-            //{
+            if (!IsHost)
+            {
                 SyncMouseInputServerRpc(false, true);
                 return;   
-            //}
+            }
             StartReelingLure();
         }
         private void ReelInputPerformed(InputAction.CallbackContext a_context)

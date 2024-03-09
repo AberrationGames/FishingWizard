@@ -1,4 +1,4 @@
-using System;
+using Steamworks.Data;
 using UnityEngine;
 
 public class LobbyFinderUiManager : MonoBehaviour
@@ -10,6 +10,7 @@ public class LobbyFinderUiManager : MonoBehaviour
 
     public void SetLobbyItems()
     {
+        Lobby[] lobbySettings = GameNetworkManager.Instance.Lobbies.ToArray();
         //Clear all previous lobby items then create all new ones required. can fix later to have object pooling but since 10 lobbys will be shown at any given point I think it is fine.
         for (int i = 0; i < m_lobbyContainer.transform.childCount; i++)
         {

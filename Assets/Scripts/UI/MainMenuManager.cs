@@ -50,18 +50,18 @@ public class MainMenuManager : MonoBehaviour
         m_hostLobbyButton.onClick.AddListener(GotoNetworkSelectionScreenHost);    
         m_joinLobbyButton.onClick.AddListener(GotoNetworkSelectionScreenClient);
         m_settingsButton.onClick.AddListener(GotoSettingsScreen);
-        //m_quitGameButton.onClick.AddListener(Application.Quit);
+        m_quitGameButton.onClick.AddListener(Application.Quit);
     }
 
     private void Start()
     {
         //We use find objects of type as the event system is in PROD_DONOTDESTROY and cannot be manually referenced outside the scene.
-        //FindObjectOfType<EventSystem>().SetSelectedGameObject(m_startGameSinglePlayerButton.gameObject);
+        FindObjectOfType<EventSystem>().SetSelectedGameObject(m_startGameSinglePlayerButton.gameObject);
     }
 
     private void LoadGameSinglePlayer()
     {
-        //GameManager.Instance.LoadGame(m_isHost, GameNetworkManager.Instance.m_steamID);
+        GameManager.Instance.LoadGame(m_isHost, GameNetworkManager.Instance.m_steamID);
     }
     
     //Easier and cleaner to disable all then reenable.
@@ -97,12 +97,12 @@ public class MainMenuManager : MonoBehaviour
         
         m_lanOptionButton.onClick.AddListener(() =>
         {
-            //GameNetworkManager.Instance.SwapToLanTransport();
+            GameNetworkManager.Instance.SwapToLanTransport();
             m_lobbyHostSettingsScreenObject.SetActive(true);
         });
         m_onlineOptionButton.onClick.AddListener(() =>
         {
-            //GameNetworkManager.Instance.SwapToSteamTransport();
+            GameNetworkManager.Instance.SwapToSteamTransport();
             m_lobbyHostSettingsScreenObject.SetActive(true);
         });
     }
@@ -118,12 +118,12 @@ public class MainMenuManager : MonoBehaviour
         
         m_lanOptionButton.onClick.AddListener(() =>
         {
-            //GameNetworkManager.Instance.SwapToLanTransport();
-            //GameManager.Instance.LoadGame(false, GameNetworkManager.Instance.m_steamID);
+            GameNetworkManager.Instance.SwapToLanTransport();
+            GameManager.Instance.LoadGame(false, GameNetworkManager.Instance.m_steamID);
         });
         m_onlineOptionButton.onClick.AddListener(() =>
         {
-            //GameNetworkManager.Instance.SwapToSteamTransport();
+            GameNetworkManager.Instance.SwapToSteamTransport();
             m_lobbySearchScreenObject.SetActive(true);
         });
     }
