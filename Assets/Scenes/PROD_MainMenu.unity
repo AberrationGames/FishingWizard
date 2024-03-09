@@ -2403,13 +2403,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1277209, y: 0.31915173, z: -0.04341663, w: 0.93805367}
-  m_LocalPosition: {x: -21.5, y: 10.1, z: -27.6}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 0, y: 10, z: -30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1853971068}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5114,6 +5114,7 @@ MonoBehaviour:
   m_lobbyReadyUpButton: {fileID: 1921013775}
   m_lobbyBackButton: {fileID: 37754173}
   m_settingsScreenObject: {fileID: 1746845310}
+  m_isHost: 1
 --- !u!1001 &763321960
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6224,11 +6225,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1716a1934cd9c6a46b796ebe99b3b1c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_publicLobbyToggle: {fileID: 465956035}
-  m_hostLobbyButton: {fileID: 304677835}
-  m_lobbyDescriptionInput: {fileID: 883242310}
-  m_lobbyMaxSizeInput: {fileID: 1820424878}
-  m_publicLobbyToggleText: {fileID: 918490024}
 --- !u!1 &918490022
 GameObject:
   m_ObjectHideFlags: 0
@@ -10954,14 +10950,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1853971067}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.67003804, z: 0, w: 0.74232686}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 330585546}
   m_Father: {fileID: 1005879072}
-  m_LocalEulerAnglesHint: {x: 0, y: 84.14, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &1853971069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10974,7 +10970,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cab2aaa79344b824a9bb2b4714f223f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_axis: 1
   m_rotateSpeed: 6
+  m_useLocalSpace: 0
 --- !u!1001 &1871766804
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12143,6 +12141,7 @@ MonoBehaviour:
   m_lobbyItemPrefab: {fileID: 3271876482812345274, guid: 0bdd15f88cfcd9346a6d382d0c1a3c89,
     type: 3}
   m_lobbyContainer: {fileID: 1367502566}
+  m_loadingScreenObject: {fileID: 0}
 --- !u!1 &2063645006
 GameObject:
   m_ObjectHideFlags: 0
