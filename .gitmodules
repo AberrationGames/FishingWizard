@@ -1,0 +1,3 @@
+[submodule "GenericGameDevScripts"]
+	path = Assets/Plugins/GenericGameDevScripts
+	url = https://github.com/ThomasLambProgramming/GenericStarter
